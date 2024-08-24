@@ -141,6 +141,13 @@ pc.defineParameter(
 params = pc.bindParameters()
 pc.verifyParameters()
 request = pc.makeRequestRSpec()
+request.addRole(
+    Role(
+        "single-node-oran",
+        path="ansible",
+        playbooks=[Playbook("single-node-oran", path="single-node-oran.yml", become="root")]
+    )
+)
 
 node = request.RawPC("node")
 node.hardware_type = params.nodetype
