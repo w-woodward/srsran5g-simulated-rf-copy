@@ -1,8 +1,13 @@
 import os
 
 import geni.portal as portal
-import geni.rspec.pg as rspec
-import geni.rspec.igext as IG
+import geni.rspec.pg as pg
+import geni.rspec.igext as ig
+import geni.rspec.emulab as emulab
+import geni.rspec.emulab.ansible
+
+from geni.rspec.emulab.ansible import Role, RoleBinding, Override, Playbook
+
 
 tourDescription = """
 
@@ -98,15 +103,17 @@ https://github.com/srsran/srsRAN
 """
 
 
-BIN_PATH = "/local/repository/bin"
-ETC_PATH = "/local/repository/etc"
-SRS_DEPLOY_SCRIPT = os.path.join(BIN_PATH, "deploy-srs.sh")
-OPEN5GS_DEPLOY_SCRIPT = os.path.join(BIN_PATH, "deploy-open5gs.sh")
+HEAD_CMD = "sudo -u `geni-get user_urn | cut -f4 -d+` -Hi /bin/sh -c '/local/repository/emulab-ansible-bootstrap/head.sh >/local/logs/setup.log 2>&1'"
+CLIENT_CMD = "sudo -u `geni-get user_urn | cut -f4 -d+` -Hi /bin/sh -c '/local/repository/emulab-ansible-bootstrap/client.sh >/local/logs/setup.log 2>&1'"
+# BIN_PATH = "/local/repository/bin"
+# ETC_PATH = "/local/repository/etc"
+# SRS_DEPLOY_SCRIPT = os.path.join(BIN_PATH, "deploy-srs.sh")
+# OPEN5GS_DEPLOY_SCRIPT = os.path.join(BIN_PATH, "deploy-open5gs.sh")
 UBUNTU_IMG = "urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU22-64-STD"
-DEFAULT_SRS_HASHES = {
-    "srsRAN_4G": "release_23_04_1",
-    "srsRAN_Project": "release_23_5",
-}
+# DEFAULT_SRS_HASHES = {
+#     "srsRAN_4G": "release_23_04_1",
+#     "srsRAN_Project": "release_23_5",
+# }
 
 pc = portal.Context()
 node_types = [
@@ -131,15 +138,15 @@ node = request.RawPC("node")
 node.hardware_type = params.nodetype
 node.disk_image = UBUNTU_IMG
 
-for srs_type, type_hash in DEFAULT_SRS_HASHES.items():
-    cmd = "{} '{}' {}".format(SRS_DEPLOY_SCRIPT, type_hash, srs_type)
-    node.addService(rspec.Execute(shell="bash", command=cmd))
+# for srs_type, type_hash in DEFAULT_SRS_HASHES.items():
+#     cmd = "{} '{}' {}".format(SRS_DEPLOY_SCRIPT, type_hash, srs_type)
+#     node.addService(pg.Execute(shell="bash", command=cmd))
 
-node.addService(rspec.Execute(shell="bash", command=OPEN5GS_DEPLOY_SCRIPT))
+# node.addService(pg.Execute(shell="bash", command=OPEN5GS_DEPLOY_SCRIPT))
 
-tour = IG.Tour()
-tour.Description(IG.Tour.MARKDOWN, tourDescription)
-tour.Instructions(IG.Tour.MARKDOWN, tourInstructions)
+tour = ig.Tour()
+tour.Description(ig.Tour.MARKDOWN, tourDescription)
+tour.Instructions(ig.Tour.MARKDOWN, tourInstructions)
 request.addTour(tour)
 
 pc.printRequestRSpec(request)
