@@ -2,8 +2,6 @@
   apt:
     name:
       - cmake
-      - docker-compose
-      - docker.io
       - g++
       - gcc
       - git
