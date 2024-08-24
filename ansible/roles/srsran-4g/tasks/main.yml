@@ -1,94 +1,89 @@
-- name: Deploy srsRAN 4G
-  hosts: all
-  become: yes
+- name: Install dependencies
+  apt:
+    name:
+      - build-essential
+      - cmake
+      - libfftw3-dev
+      - libmbedtls-dev
+      - libboost-program-options-dev
+      - libconfig++-dev
+      - libsctp-dev
+      - libzmq3-dev
 
-  tasks:
-    - name: Install dependencies
-      apt:
-        name:
-          - build-essential
-          - cmake
-          - libfftw3-dev
-          - libmbedtls-dev
-          - libboost-program-options-dev
-          - libconfig++-dev
-          - libsctp-dev
-          - libzmq3-dev
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
 
-        state: present
-        update_cache: yes
-        cache_valid_time: 3600
+- name: Get srsRAN 4G
+  git:
+    repo: "{{ srsran_4g_repo }}"
+    dest: "{{ srsran_4g_dir }}"
+    version: "{{ srsran_4g_hash }}"
+    update: no
+  register: srsran_4g_clone
 
-    - name: Get srsRAN 4G
-      git:
-        repo: "{{ srsran_4g_repo }}"
-        dest: "{{ srsran_4g_dir }}"
-        version: "{{ srsran_4g_hash }}"
-        update: no
-      register: srsran_4g_clone
+- debug:
+    var: "{{ srsran_4g_clone }}"
 
-    - debug:
-        var: "{{ srsran_4g_clone }}"
+- name: Create build directory
+  file:
+    path: "{{ srsran_4g_dir }}/build"
+    state: directory
 
-    - name: Create build directory
-      file:
-        path: "{{ srsran_4g_dir }}/build"
-        state: directory
+- name: Configure srsRAN 4G
+  command:
+    cmd: cmake ..
+    chdir: "{{ srsran_4g_dir }}/build"
+  register: srsran_4g_configure
 
-    - name: Configure srsRAN 4G
-      command:
-        cmd: cmake ..
-        chdir: "{{ srsran_4g_dir }}/build"
-      register: srsran_4g_configure
+- debug:
+    var: "{{ srsran_4g_configure }}"
 
-    - debug:
-        var: "{{ srsran_4g_configure }}"
+- name: Get number of cores
+  command: nproc
+  register: nproc
 
-    - name: Get number of cores
-      command: nproc
-      register: nproc
+- set_fact:
+    nproc: "{{ nproc.stdout }}"
 
-    - set_fact:
-        nproc: "{{ nproc.stdout }}"
+- name: Build srsRAN 4G
+  command:
+    cmd: make -j{{ nproc }}
+    chdir: "{{ srsran_4g_dir }}/build"
+  register: srsran_4g_build
 
-    - name: Build srsRAN 4G
-      command:
-        cmd: make -j{{ nproc }}
-        chdir: "{{ srsran_4g_dir }}/build"
-      register: srsran_4g_build
+- debug:
+    var: "{{ srsran_4g_build }}"
 
-    - debug:
-        var: "{{ srsran_4g_build }}"
+- name: Install srsRAN 4G
+  command: "{{ item }} chdir={{ srsran_4g_dir }}/build"
+  with_items:
+    - make install
+    - ldconfig
+  register: srsran_4g_install
 
-    - name: Install srsRAN 4G
-      command: "{{ item }} chdir={{ srsran_4g_dir }}/build"
-      with_items:
-        - make install
-        - ldconfig
-      register: srsran_4g_install
+- debug:
+    var: "{{ srsran_4g_install }}"
 
-    - debug:
-        var: "{{ srsran_4g_install }}"
+- name: Install srsRAN 4G configs
+  become: true
+  become_user: {{ emulab_swapper }}
+  command:
+    cmd: sudo srsran_install_configs.sh user
+  register: srsran_4g_install_cfg
 
-    - name: Install srsRAN 4G configs
-      become: true
-      become_user: {{ emulab_swapper }}
-      command:
-        cmd: sudo srsran_install_configs.sh user
-      register: srsran_4g_install_cfg
+- debug:
+    var: "{{ srsran_4g_install_cfg.stdout_lines }}"
 
-    - debug:
-        var: "{{ srsran_4g_install_cfg.stdout_lines }}"
+- name: Ensure config permissions
+  file:
+    path: "/users/{{ emulab_swapper }}/.config/srsran"
+    state: directory
+    recurse: yes
+    owner: "{{ emulab_swapper }}"
 
-    - name: Ensure config permissions
-      file:
-        path: "/users/{{ emulab_swapper }}/.config/srsran"
-        state: directory
-        recurse: yes
-        owner: "{{ emulab_swapper }}"
-
-    - name: Copy UE config file
-      copy:
-        src: templates/ue.conf
-        dest: "/users/{{ emulab_swapper }}/.config/srsran/ue.conf"
-        owner: "{{ emulab_swapper }}"
+- name: Copy UE config file
+  copy:
+    src: templates/ue.conf
+    dest: "/users/{{ emulab_swapper }}/.config/srsran/ue.conf"
+    owner: "{{ emulab_swapper }}"

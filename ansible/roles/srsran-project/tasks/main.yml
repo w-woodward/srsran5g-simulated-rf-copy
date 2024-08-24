@@ -1,84 +1,80 @@
-- name: Deploy srsRAN Project
-  become: yes
+- name: Install dependencies
+  apt:
+    name:
+      - cmake
+      - docker-compose
+      - docker.io
+      - g++
+      - gcc
+      - git
+      - libfftw3-dev
+      - libgtest-dev
+      - libmbedtls-dev
+      - libsctp-dev
+      - libyaml-cpp-dev
+      - libzmq3-dev
+      - make
+      - pkg-config
 
-  tasks:
-    - name: Install dependencies
-      apt:
-        name:
-          - cmake
-          - docker-compose
-          - docker.io
-          - g++
-          - gcc
-          - git
-          - libfftw3-dev
-          - libgtest-dev
-          - libmbedtls-dev
-          - libsctp-dev
-          - libyaml-cpp-dev
-          - libzmq3-dev
-          - make
-          - pkg-config
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
 
-        state: present
-        update_cache: yes
-        cache_valid_time: 3600
+- name: Add user to the Docker group
+  user:
+    name: "{{ emulab_swapper }}"
+    groups: docker
+    append: yes
 
-    - name: Add user to the Docker group
-      user:
-        name: "{{ emulab_swapper }}"
-        groups: docker
-        append: yes
+- name: Get srsRAN Project
+  git:
+    repo: "{{ srsran_project_repo }}"
+    dest: "{{ srsran_project_dir }}"
+    version: "{{ srsran_project_hash }}"
+    update: no
+  register: srsran_project_clone
 
-    - name: Get srsRAN Project
-      git:
-        repo: "{{ srsran_project_repo }}"
-        dest: "{{ srsran_project_dir }}"
-        version: "{{ srsran_project_hash }}"
-        update: no
-      register: srsran_project_clone
+- debug:
+    var: srsran_project_clone
 
-    - debug:
-        var: srsran_project_clone
+- name: Create build directory
+  file:
+    path: "{{ srsran_project_dir }}/build"
+    state: directory
 
-    - name: Create build directory
-      file:
-        path: "{{ srsran_project_dir }}/build"
-        state: directory
+- name: Configure srsRAN Project
+  command:
+    cmd: cmake .. -DENABLE_EXPORT=ON -DENABLE_ZEROMQ=ON
+    chdir: "{{ srsran_project_dir }}/build"
+  register: srsran_project_configure
 
-    - name: Configure srsRAN Project
-      command:
-        cmd: cmake .. -DENABLE_EXPORT=ON -DENABLE_ZEROMQ=ON
-        chdir: "{{ srsran_project_dir }}/build"
-      register: srsran_project_configure
+- debug:
+    var: srsran_project_configure
 
-    - debug:
-        var: srsran_project_configure
+- name: Get number of cores
+  command: nproc
+  register: nproc
 
-    - name: Get number of cores
-      command: nproc
-      register: nproc
+- set_fact:
+    nproc: "{{ nproc.stdout }}"
 
-    - set_fact:
-        nproc: "{{ nproc.stdout }}"
+- name: Build srsRAN Project
+  command:
+    cmd: make -j{{ nproc }}
+    chdir: "{{ srsran_project_dir }}/build"
+  register: srsran_project_build
 
-    - name: Build srsRAN Project
-      command:
-        cmd: make -j{{ nproc }}
-        chdir: "{{ srsran_project_dir }}/build"
-      register: srsran_project_build
+- debug:
+    var: srsran_project_build
 
-    - debug:
-        var: srsran_project_build
+- name: Ensure config directory exists
+  file:
+    path: "/users/{{ emulab_swapper }}/.config/srsran"
+    state: directory
+    owner: "{{ emulab_swapper }}"
 
-    - name: Ensure config directory exists
-      file:
-        path: "/users/{{ emulab_swapper }}/.config/srsran"
-        state: directory
-        owner: "{{ emulab_swapper }}"
-
-    - name: Copy gNB config file
-      copy:
-        src: templates/gnb.yml
-        dest: "/users/{{ emulab_swapper }}/.config/srsran/gnb.yml"
-        owner: "{{ emulab_swapper }}"
+- name: Copy gNB config file
+  copy:
+    src: templates/gnb.yml
+    dest: "/users/{{ emulab_swapper }}/.config/srsran/gnb.yml"
+    owner: "{{ emulab_swapper }}"
