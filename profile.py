@@ -137,7 +137,7 @@ request = pc.makeRequestRSpec()
 node = request.RawPC("node")
 node.hardware_type = params.nodetype
 node.disk_image = UBUNTU_IMG
-
+node.addService(pg.Execute(shell="sh", command=HEAD_CMD))
 # for srs_type, type_hash in DEFAULT_SRS_HASHES.items():
 #     cmd = "{} '{}' {}".format(SRS_DEPLOY_SCRIPT, type_hash, srs_type)
 #     node.addService(pg.Execute(shell="bash", command=cmd))
