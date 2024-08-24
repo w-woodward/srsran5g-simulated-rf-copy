@@ -1,0 +1,4 @@
+
+srsran_project_dir: /opt/srsRAN_Project
+srsran_project_repo: https://github.com/srsran/srsRAN_Project.git
+srsran_project_hash: 4ac5300d4927b5199af69e6bc2e55d061fc33652

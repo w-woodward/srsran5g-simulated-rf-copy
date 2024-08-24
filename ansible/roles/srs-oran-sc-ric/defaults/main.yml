@@ -1,0 +1,4 @@
+
+srs_oran_sc_ric_dir: /opt/oran-sc-ric
+srs_oran_sc_ric_repo: https://github.com/srsran/oran-sc-ric.git
+srs_oran_sc_ric_hash: dffe57fd3046303589139b942d3eb7689afa7611

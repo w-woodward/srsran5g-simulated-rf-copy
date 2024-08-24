@@ -1,0 +1,4 @@
+
+srsran_4g_repo: https://github.com/srsRAN/srsRAN_4G.git
+srsran_4g_hash: ec29b0c1ff79cebcbe66caa6d6b90778261c42b8
+srsran_4g_dir: /opt/srsRAN_4G

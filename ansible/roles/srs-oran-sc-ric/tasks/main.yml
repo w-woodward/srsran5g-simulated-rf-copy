@@ -1,0 +1,35 @@
+- name: Install dependencies
+  apt:
+    name:
+      - docker-compose
+      - docker.io
+
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Add user to the Docker group
+  user:
+    name: "{{ emulab_swapper }}"
+    groups: docker
+    append: yes
+
+- name: Get simple ORAN SC RIC
+  git:
+    repo: "{{ srs_oran_sc_ric_repo }}"
+    dest: "{{ srs_oran_sc_ric_dir }}"
+    version: "{{ srs_oran_sc_ric_hash }}"
+    update: no
+  register: srs_oran_sc_ric_clone
+
+- debug:
+    var: srs_oran_sc_ric_clone
+
+- name: Build necessary containers
+  command:
+    cmd: docker-compose build
+    chdir: "{{ srs_oran_sc_ric_dir }}"
+  register: srs_oran_sc_ric_build
+
+- debug:
+    var: srs_oran_sc_ric_build

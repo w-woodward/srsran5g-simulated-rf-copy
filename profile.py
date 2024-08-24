@@ -121,6 +121,14 @@ node_types = [
     ("d740", "Emulab, d740"),
 ]
 
+pc.addRole(
+    Role(
+        "single-node-oran",
+        path="ansible",
+        playbooks=[Playbook("single-node-oran", path="single-node-oran.yml", become="root")]
+    )
+)
+
 pc.defineParameter(
     name="nodetype",
     description="Type of compute node to used.",
@@ -138,6 +146,7 @@ node = request.RawPC("node")
 node.hardware_type = params.nodetype
 node.disk_image = UBUNTU_IMG
 node.addService(pg.Execute(shell="sh", command=HEAD_CMD))
+node.bindRole(RoleBinding("single-node-oran"))
 # for srs_type, type_hash in DEFAULT_SRS_HASHES.items():
 #     cmd = "{} '{}' {}".format(SRS_DEPLOY_SCRIPT, type_hash, srs_type)
 #     node.addService(pg.Execute(shell="bash", command=cmd))
