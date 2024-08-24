@@ -121,14 +121,6 @@ node_types = [
     ("d740", "Emulab, d740"),
 ]
 
-pc.addRole(
-    Role(
-        "single-node-oran",
-        path="ansible",
-        playbooks=[Playbook("single-node-oran", path="single-node-oran.yml", become="root")]
-    )
-)
-
 pc.defineParameter(
     name="nodetype",
     description="Type of compute node to used.",
