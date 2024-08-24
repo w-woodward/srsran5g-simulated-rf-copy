@@ -2,9 +2,4 @@
 dependencies:
 - role: emulab.common.common
 - role: emulab.common.facts
-- role: emulab.common.docker
-- role: emulab.common.ssl
-
-collections:
-- community.docker
 
