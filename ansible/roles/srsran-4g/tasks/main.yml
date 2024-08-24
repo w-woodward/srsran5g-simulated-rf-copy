@@ -67,7 +67,7 @@
 
 - name: Install srsRAN 4G configs
   become: true
-  become_user: {{ emulab_swapper }}
+  become_user: "{{ emulab_swapper }}"
   command:
     cmd: sudo srsran_install_configs.sh user
   register: srsran_4g_install_cfg
