@@ -100,7 +100,7 @@ ANSIBLE_COLLECTIONS_DIR = "~/.ansible/collections/ansible_collections"
 NEXTG_UTILS_COLLECTION_NS = "dustinmaas.nextg_utils"
 NEXTG_UTILS_COLLECTION_REPO = "git+https://gitlab.flux.utah.edu/dmaas/ansible-nextg"
 GALAXY_INSTALL_CMD = "{}/ansible-galaxy collection install {} >> /local/logs/setup.log 2>&1".format(ANSIBLE_VENV, NEXTG_UTILS_COLLECTION_REPO)
-GALAXY_INSTALL_REQS_CMD = "{}/ansible-galaxy install -r {}/{} >> /local/logs/setup.log 2>&1".format(ANSIBLE_VENV, ANSIBLE_COLLECTIONS_DIR, NEXTG_UTILS_COLLECTION_NS)
+GALAXY_INSTALL_REQS_CMD = "{}/ansible-galaxy install -r {}/{}/requirements.yml >> /local/logs/setup.log 2>&1".format(ANSIBLE_VENV, ANSIBLE_COLLECTIONS_DIR, NEXTG_UTILS_COLLECTION_NS)
 
 pc = portal.Context()
 node_types = [
