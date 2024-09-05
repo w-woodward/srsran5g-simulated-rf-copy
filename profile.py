@@ -91,15 +91,16 @@ https://github.com/srsran/srsRAN_Project
 """
 
 
-HEAD_CMD = "sudo -u `geni-get user_urn | cut -f4 -d+` -Hi /bin/sh -c '/local/repository/emulab-ansible-bootstrap/head.sh >/local/logs/setup.log 2>&1'"
+HEAD_CMD = "sudo -u `geni-get user_urn | cut -f4 -d+` -Hi /bin/sh -c 'EMULAB_ANSIBLE_NOAUTO=1 /local/repository/emulab-ansible-bootstrap/head.sh >/local/logs/setup.log 2>&1'"
+TAIL_CMD = "sudo -u `geni-get user_urn | cut -f4 -d+` -Hi /bin/sh -c '/local/setup/ansible/run-automation.sh >> /local/logs/setup.log 2>&1'"
 CLIENT_CMD = "sudo -u `geni-get user_urn | cut -f4 -d+` -Hi /bin/sh -c '/local/repository/emulab-ansible-bootstrap/client.sh >/local/logs/setup.log 2>&1'"
 UBUNTU_IMG = "urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU22-64-STD"
 ANSIBLE_VENV = "/local/setup/venv/default/bin"
 ANSIBLE_COLLECTIONS_DIR = "~/.ansible/collections/ansible_collections"
 NEXTG_UTILS_COLLECTION_NS = "dustinmaas.nextg_utils"
 NEXTG_UTILS_COLLECTION_REPO = "git+https://gitlab.flux.utah.edu/dmaas/ansible-nextg"
-GALAXY_INSTALL_CMD = "{}/ansible-galaxy collection install {} > /local/logs/install-nextg-utils.log 2>&1".format(ANSIBLE_VENV, NEXTG_UTILS_COLLECTION_REPO)
-GALAXY_INSTALL_REQS_CMD = "{}/ansible-galaxy install -r {}/{} >> /local/logs/install-nextg-utils.log 2>&1".format(ANSIBLE_VENV, ANSIBLE_COLLECTIONS_DIR, NEXTG_UTILS_COLLECTION_NS)
+GALAXY_INSTALL_CMD = "{}/ansible-galaxy collection install {} >> /local/logs/setup.log 2>&1".format(ANSIBLE_VENV, NEXTG_UTILS_COLLECTION_REPO)
+GALAXY_INSTALL_REQS_CMD = "{}/ansible-galaxy install -r {}/{} >> /local/logs/setup.log 2>&1".format(ANSIBLE_VENV, ANSIBLE_COLLECTIONS_DIR, NEXTG_UTILS_COLLECTION_NS)
 
 pc = portal.Context()
 node_types = [
@@ -130,10 +131,11 @@ request.addRole(
 node = request.RawPC("node")
 node.hardware_type = params.nodetype
 node.disk_image = UBUNTU_IMG
+node.bindRole(RoleBinding("single_node_oran"))
 node.addService(pg.Execute(shell="sh", command=HEAD_CMD))
 node.addService(pg.Execute(shell="sh", command=GALAXY_INSTALL_CMD))
 node.addService(pg.Execute(shell="sh", command=GALAXY_INSTALL_REQS_CMD))
-node.bindRole(RoleBinding("single_node_oran"))
+node.addService(pg.Execute(shell="sh", command=TAIL_CMD))
 
 tour = ig.Tour()
 tour.Description(ig.Tour.MARKDOWN, tourDescription)
