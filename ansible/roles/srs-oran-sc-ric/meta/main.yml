@@ -1,9 +1,0 @@
-
-dependencies:
-- role: emulab.common.common
-- role: emulab.common.facts
-- role: emulab.common.docker
-
-collections:
-- community.docker
-
