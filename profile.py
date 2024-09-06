@@ -124,7 +124,7 @@ request.addRole(
     Role(
         "single_node_oran",
         path="ansible",
-        playbooks=[Playbook("single_node_oran", path="single_node_oran.yml", become="root")]
+        playbooks=[Playbook("single_node_oran", path="single_node_oran.yml")]
     )
 )
 
