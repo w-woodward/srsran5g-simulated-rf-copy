@@ -9,6 +9,40 @@ import geni.rspec.emulab.ansible
 from geni.rspec.emulab.ansible import Role, RoleBinding, Override, Playbook
 
 
+HEAD_CMD = "sudo -u `geni-get user_urn | cut -f4 -d+` -Hi /bin/sh -c 'EMULAB_ANSIBLE_NOAUTO=1 /local/repository/emulab-ansible-bootstrap/head.sh >/local/logs/setup.log 2>&1'"
+TAIL_CMD = "sudo -u `geni-get user_urn | cut -f4 -d+` -Hi /bin/sh -c '/local/setup/ansible/run-automation.sh >> /local/logs/setup.log 2>&1'"
+CLIENT_CMD = "sudo -u `geni-get user_urn | cut -f4 -d+` -Hi /bin/sh -c '/local/repository/emulab-ansible-bootstrap/client.sh >/local/logs/setup.log 2>&1'"
+UBUNTU_IMG = "urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU22-64-STD"
+ANSIBLE_VENV = "/local/setup/venv/default/bin"
+ANSIBLE_COLLECTIONS_DIR = "~/.ansible/collections/ansible_collections"
+NEXTG_UTILS_COLLECTION_NS = "dustinmaas/nextg_utils"
+NEXTG_UTILS_COLLECTION_REPO = "git+https://gitlab.flux.utah.edu/dmaas/ansible-nextg"
+GALAXY_INSTALL_CMD = "{}/ansible-galaxy collection install {} >> /local/logs/setup.log 2>&1".format(ANSIBLE_VENV, NEXTG_UTILS_COLLECTION_REPO)
+GALAXY_INSTALL_REQS_CMD = "{}/ansible-galaxy install -r {}/{}/requirements.yml >> /local/logs/setup.log 2>&1".format(ANSIBLE_VENV, ANSIBLE_COLLECTIONS_DIR, NEXTG_UTILS_COLLECTION_NS)
+
+pc = portal.Context()
+node_types = [
+    ("d430", "Emulab, d430"),
+    ("d740", "Emulab, d740"),
+]
+
+pc.defineParameter(
+    name="deployric",
+    description="Deploy ORAN SC RIC and xApp on the same node.",
+    typ=portal.ParameterType.BOOLEAN,
+    defaultValue=False,
+)
+pc.defineParameter(
+    name="nodetype",
+    description="Type of compute node to used.",
+    typ=portal.ParameterType.STRING,
+    defaultValue=node_types[0],
+    legalValues=node_types,
+    advanced=True,
+)
+
+params = pc.bindParameters()
+
 tourDescription = """
 
 ### srsRAN 5G with Open5GS and Simulated RF
@@ -106,40 +140,6 @@ https://open5gs.org
 https://github.com/srsran/srsRAN_Project
     """
 
-
-HEAD_CMD = "sudo -u `geni-get user_urn | cut -f4 -d+` -Hi /bin/sh -c 'EMULAB_ANSIBLE_NOAUTO=1 /local/repository/emulab-ansible-bootstrap/head.sh >/local/logs/setup.log 2>&1'"
-TAIL_CMD = "sudo -u `geni-get user_urn | cut -f4 -d+` -Hi /bin/sh -c '/local/setup/ansible/run-automation.sh >> /local/logs/setup.log 2>&1'"
-CLIENT_CMD = "sudo -u `geni-get user_urn | cut -f4 -d+` -Hi /bin/sh -c '/local/repository/emulab-ansible-bootstrap/client.sh >/local/logs/setup.log 2>&1'"
-UBUNTU_IMG = "urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU22-64-STD"
-ANSIBLE_VENV = "/local/setup/venv/default/bin"
-ANSIBLE_COLLECTIONS_DIR = "~/.ansible/collections/ansible_collections"
-NEXTG_UTILS_COLLECTION_NS = "dustinmaas/nextg_utils"
-NEXTG_UTILS_COLLECTION_REPO = "git+https://gitlab.flux.utah.edu/dmaas/ansible-nextg"
-GALAXY_INSTALL_CMD = "{}/ansible-galaxy collection install {} >> /local/logs/setup.log 2>&1".format(ANSIBLE_VENV, NEXTG_UTILS_COLLECTION_REPO)
-GALAXY_INSTALL_REQS_CMD = "{}/ansible-galaxy install -r {}/{}/requirements.yml >> /local/logs/setup.log 2>&1".format(ANSIBLE_VENV, ANSIBLE_COLLECTIONS_DIR, NEXTG_UTILS_COLLECTION_NS)
-
-pc = portal.Context()
-node_types = [
-    ("d430", "Emulab, d430"),
-    ("d740", "Emulab, d740"),
-]
-
-pc.defineParameter(
-    name="deployric",
-    description="Deploy ORAN SC RIC and xApp on the same node.",
-    typ=portal.ParameterType.BOOLEAN,
-    defaultValue=False,
-)
-pc.defineParameter(
-    name="nodetype",
-    description="Type of compute node to used.",
-    typ=portal.ParameterType.STRING,
-    defaultValue=node_types[0],
-    legalValues=node_types,
-    advanced=True,
-)
-
-params = pc.bindParameters()
 pc.verifyParameters()
 request = pc.makeRequestRSpec()
 request.addRole(
