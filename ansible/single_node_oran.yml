@@ -2,6 +2,7 @@
   hosts: all
   become: true
   roles:
-    - dustinmaas.nextg_utils.srs_oran_sc_ric
-    - dustinmaas.nextg_utils.srsran_project
-    - dustinmaas.nextg_utils.srsran_4g
+    - role: dustinmaas.nextg_utils.srs_oran_sc_ric
+      when: srsran_project_enable_du_e2
+    - role: dustinmaas.nextg_utils.srsran_project
+    - role: dustinmaas.nextg_utils.srsran_4g
