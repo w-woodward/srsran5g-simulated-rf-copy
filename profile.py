@@ -127,6 +127,7 @@ request.addRole(
         playbooks=[Playbook("single_node_oran", path="single_node_oran.yml")]
     )
 )
+request.addOverride(Override("srsran_project_build_5gc", value="true"))
 
 node = request.RawPC("node")
 node.hardware_type = params.nodetype
