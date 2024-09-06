@@ -74,7 +74,7 @@ sudo docker compose up
 """
 
 if params.deployric:
-    tourDescription += \
+    tourInstructions += \
     """
 In another session
 
@@ -86,7 +86,7 @@ sudo docker compose up
 
     """
 else:
-    tourDescription += \
+    tourInstructions += \
     """
 In another session:
 
@@ -116,7 +116,7 @@ sudo ip netns exec ue1 ping -i 0.1 10.45.1.1
     """
 
 if params.deployric:
-    tourDescription += \
+    tourInstructions += \
     """
 In another session:
 
@@ -130,7 +130,7 @@ You should see action in the RIC container logs as the KPM monitor xApp recieves
 
     """
 
-tourDescription += \
+tourInstructions += \
     """
 Note: When ZMQ is used by srsRAN to pass IQ samples, if you restart either of the `gnb` or `srsue` processes, you must restart the other as well.
 
