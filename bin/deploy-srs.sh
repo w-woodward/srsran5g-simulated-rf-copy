@@ -15,6 +15,7 @@ install_srsran_common () {
     sudo apt update
     sudo apt install -y \
         cmake \
+        iperf3 \
         libfftw3-dev \
         libmbedtls-dev \
         libsctp-dev \
@@ -43,7 +44,7 @@ install_srsran_4g () {
     sudo apt install -y \
         build-essential \
         libboost-program-options-dev \
-        libconfig++-dev \
+        libconfig++-dev
 
     clone_build_install
     sudo srsran_install_configs.sh service
@@ -75,10 +76,46 @@ install_srsran_gui () {
     clone_build_install
 }
 
+install_docker () {
+    sudo apt-get update
+    sudo apt-get install -y ca-certificates curl
+    sudo install -m 0755 -d /etc/apt/keyrings
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+    # Add the repository to Apt sources:
+    echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+      $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+      sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo apt-get update
+    sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+}
+
+build_pull_docker_images () {
+    cd $SRCDIR/$SRS_TYPE/docker
+    sudo docker compose build 5gc metrics-server
+    sudo docker compose pull influxdb grafana
+}
+
+install_tshark () {
+    sudo apt update
+    sudo apt install -y software-properties-common
+    sudo add-apt-repository -y ppa:wireshark-dev/stable
+    echo "wireshark-common wireshark-common/install-setuid boolean false" | sudo debconf-set-selections
+    sudo apt update
+    sudo apt install -y \
+        tshark \
+        wireshark
+}
+
 if [ "$SRS_TYPE" = "srsRAN_4G" ]; then
     install_srsran_4g
 elif [ "$SRS_TYPE" = "srsRAN_Project" ]; then
+    install_docker
+    install_tshark
     install_srsran_project
+    build_pull_docker_images
 elif [ "$SRS_TYPE" = "srsGUI" ]; then
     install_srsran_gui
 else
