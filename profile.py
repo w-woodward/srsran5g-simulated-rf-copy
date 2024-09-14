@@ -85,8 +85,8 @@ sudo docker compose up
 ```
 
     """
-else:
-    tourInstructions += \
+
+tourInstructions += \
     """
 In another session:
 
