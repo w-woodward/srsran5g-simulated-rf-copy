@@ -2,7 +2,7 @@ set -ex
 COMMIT_HASH=$1
 SRS_TYPE=$2
 BINDIR=`dirname $0`
-SRCDIR=/var/tmp
+SRCDIR=/opt
 CFGDIR=/local/repository/etc
 SRS_REPO=https://github.com/srsRAN/$SRS_TYPE
 

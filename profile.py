@@ -90,6 +90,7 @@ BIN_PATH = "/local/repository/bin"
 ETC_PATH = "/local/repository/etc"
 SRS_DEPLOY_SCRIPT = os.path.join(BIN_PATH, "deploy-srs.sh")
 UBUNTU_IMG = "urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU22-64-STD"
+DEPLOYED_UBUNTU_IMG = "urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU22-64-STD"
 DEFAULT_SRS_HASHES = {
     "srsRAN_4G": "release_23_11",
     "srsRAN_Project": "release_24_04",
@@ -124,12 +125,14 @@ request = pc.makeRequestRSpec()
 
 node = request.RawPC("node")
 node.hardware_type = params.nodetype
-node.disk_image = UBUNTU_IMG
 
 if params.do_deploy:
+    node.disk_image = UBUNTU_IMG
     for srs_type, type_hash in DEFAULT_SRS_HASHES.items():
         cmd = "{} '{}' {}".format(SRS_DEPLOY_SCRIPT, type_hash, srs_type)
         node.addService(rspec.Execute(shell="bash", command=cmd))
+else:
+    node.disk_image = DEPLOYED_UBUNTU_IMG
 
 tour = IG.Tour()
 tour.Description(IG.Tour.MARKDOWN, tourDescription)
