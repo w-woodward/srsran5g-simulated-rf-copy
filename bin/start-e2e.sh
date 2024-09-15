@@ -24,16 +24,11 @@ EOF
 if sudo docker ps | grep -q open5gs; then
     sudo docker compose -f /opt/srsRAN_Project/docker/docker-compose.yml down 5gc
 fi
-if tmux has-session -t $SESSION; then
-    tmux kill-session -t $SESSION
-fi
+tmux kill-server || true
 tmux new-session -d -s $SESSION
 tmux rename-window -t $SESSION:0 'open5gs and tshark'
 tmux split-window -v -t $SESSION:0.0
 tmux select-pane -t $SESSION:0.0 -T 'open5gs container logs'
-if ! ip netns | grep -q ue1; then
-    tmux send-keys -t $SESSION:0.0 'sudo ip netns add ue1' Enter
-fi
 tmux send-keys -t $SESSION:0.0 'sudo docker compose -f /opt/srsRAN_Project/docker/docker-compose.yml up 5gc' Enter
 while ! ping 10.53.1.2 -c 1 -W 1 > /dev/null 2>&1; do sleep 1; done
 tmux send-keys -t $SESSION:0.1 'ran_network_id=$(sudo docker network inspect -f {{.Id}} docker_ran)' Enter
@@ -41,11 +36,14 @@ tmux send-keys -t $SESSION:0.1 'ran_bridge_name="br-${ran_network_id:0:12}"' Ent
 tmux send-keys -t $SESSION:0.1 'sudo tshark -i $ran_bridge_name' Enter
 tmux select-pane -t $SESSION:0.1 -T 'tshark trace'
 tmux new-window -t $SESSION:1 -n 'srsran gnb and ue'
-sleep 5
+sleep 10
 tmux send-keys -t $SESSION:1.0 'sudo gnb -c /etc/srsran/gnb.conf' Enter
 tmux select-pane -t $SESSION:1.0 -T 'srs gnb logs'
 sleep 5
 tmux split-window -v -t $SESSION:1.0
+if ! ip netns | grep -q ue1; then
+    tmux send-keys -t $SESSION:1.1 'sudo ip netns add ue1' Enter
+fi
 tmux send-keys -t $SESSION:1.1 'sudo srsue' Enter
 tmux select-pane -t $SESSION:1.1 -T 'srs ue logs'
 tmux split-window -h -t $SESSION:1.1
