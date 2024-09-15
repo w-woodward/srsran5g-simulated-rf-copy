@@ -26,7 +26,7 @@ In an SSH session on `node`:
 sudo ip netns add ue1
 
 # start 5gc container
-sudo docker compose -f /var/tmp/srsRAN_Project/docker/docker-compose.yml up 5gc
+sudo docker compose -f /opt/srsRAN_Project/docker/docker-compose.yml up 5gc
 ```
 
 In a second session:
