@@ -3,17 +3,18 @@ COMMIT_HASH=$1
 SRS_TYPE=$2
 BINDIR=`dirname $0`
 SRCDIR=/opt
+TMPDIR=/var/tmp
 CFGDIR=/local/repository/etc
 SRS_REPO=https://github.com/srsRAN/$SRS_TYPE
 
-if [ -f $SRCDIR/$SRS_TYPE-setup-complete ]; then
+if [ -f $TMPDIR/$SRS_TYPE-setup-complete ]; then
     echo "setup already ran; not running again"
     exit 0
 fi
 
 install_srsran_common () {
-    sudo apt update
-    sudo apt install -y \
+    apt update
+    apt install -y \
         cmake \
         iperf3 \
         libfftw3-dev \
@@ -35,25 +36,25 @@ clone_build_install () {
         cmake ../
     fi
     make -j `nproc`
-    sudo make install
-    sudo ldconfig
+    make install
+    ldconfig
 }
 
 install_srsran_4g () {
     install_srsran_common
-    sudo apt install -y \
+    apt install -y \
         build-essential \
         libboost-program-options-dev \
         libconfig++-dev
 
     clone_build_install
-    sudo srsran_install_configs.sh service
-    sudo cp /local/repository/etc/srsran/* /etc/srsran/
+    srsran_install_configs.sh service
+    cp /local/repository/etc/srsran/* /etc/srsran/
 }
 
 install_srsran_project () {
     install_srsran_common
-    sudo apt install -y \
+    apt install -y \
         make \
         gcc \
         g++ \
@@ -65,8 +66,8 @@ install_srsran_project () {
 }
 
 install_srsran_gui () {
-    sudo apt update
-    sudo apt install -y \
+    apt update
+    apt install -y \
         libboost-system-dev \
         libboost-test-dev \
         libboost-thread-dev \
@@ -77,34 +78,34 @@ install_srsran_gui () {
 }
 
 install_docker () {
-    sudo apt-get update
-    sudo apt-get install -y ca-certificates curl
-    sudo install -m 0755 -d /etc/apt/keyrings
-    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-    sudo chmod a+r /etc/apt/keyrings/docker.asc
+    apt-get update
+    apt-get install -y ca-certificates curl
+    install -m 0755 -d /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    chmod a+r /etc/apt/keyrings/docker.asc
 
     # Add the repository to Apt sources:
     echo \
       "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
       $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-      sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-    sudo apt-get update
-    sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+      tee /etc/apt/sources.list.d/docker.list > /dev/null
+    apt-get update
+    apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 }
 
 build_pull_docker_images () {
     cd $SRCDIR/$SRS_TYPE/docker
-    sudo docker compose build 5gc metrics-server
-    sudo docker compose pull influxdb grafana
+    docker compose build 5gc metrics-server
+    docker compose pull influxdb grafana
 }
 
 install_tshark () {
-    sudo apt update
-    sudo apt install -y software-properties-common
-    sudo add-apt-repository -y ppa:wireshark-dev/stable
-    echo "wireshark-common wireshark-common/install-setuid boolean false" | sudo debconf-set-selections
-    sudo apt update
-    sudo apt install -y \
+    apt update
+    apt install -y software-properties-common
+    add-apt-repository -y ppa:wireshark-dev/stable
+    echo "wireshark-common wireshark-common/install-setuid boolean false" | debconf-set-selections
+    apt update
+    apt install -y \
         tshark \
         wireshark
 }
@@ -123,4 +124,4 @@ else
     exit 1
 fi
 
-touch $SRCDIR/$SRS_TYPE-setup-complete
+touch $TMPDIR/$SRS_TYPE-setup-complete

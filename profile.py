@@ -129,7 +129,7 @@ node.hardware_type = params.nodetype
 if params.do_deploy:
     node.disk_image = UBUNTU_IMG
     for srs_type, type_hash in DEFAULT_SRS_HASHES.items():
-        cmd = "{} '{}' {}".format(SRS_DEPLOY_SCRIPT, type_hash, srs_type)
+        cmd = "sudo {} '{}' {}".format(SRS_DEPLOY_SCRIPT, type_hash, srs_type)
         node.addService(rspec.Execute(shell="bash", command=cmd))
 else:
     node.disk_image = DEPLOYED_UBUNTU_IMG
