@@ -119,6 +119,14 @@ pc.defineParameter(
     advanced=True,
 )
 
+pc.defineParameter(
+    name="enable_vnc",
+    description="Enable browser-based VNC server.",
+    typ=portal.ParameterType.BOOLEAN,
+    defaultValue=False,
+    advanced=True,
+)
+
 params = pc.bindParameters()
 pc.verifyParameters()
 request = pc.makeRequestRSpec()
@@ -133,6 +141,9 @@ if params.do_deploy:
         node.addService(rspec.Execute(shell="bash", command=cmd))
 else:
     node.disk_image = DEPLOYED_UBUNTU_IMG
+
+if params.enable_vnc:
+    node.startVNC()
 
 tour = IG.Tour()
 tour.Description(IG.Tour.MARKDOWN, tourDescription)
