@@ -90,7 +90,7 @@ BIN_PATH = "/local/repository/bin"
 ETC_PATH = "/local/repository/etc"
 SRS_DEPLOY_SCRIPT = os.path.join(BIN_PATH, "deploy-srs.sh")
 UBUNTU_IMG = "urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU22-64-STD"
-DEPLOYED_UBUNTU_IMG = "urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU22-64-STD"
+DEPLOYED_UBUNTU_IMG = "urn:publicid:IDN+emulab.net+image+PowderTeam:srsran5g-simulated-rf"
 DEFAULT_SRS_HASHES = {
     "srsRAN_4G": "release_23_11",
     "srsRAN_Project": "release_24_04",
