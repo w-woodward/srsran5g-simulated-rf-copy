@@ -68,7 +68,7 @@ sudo ip netns add ue1
 
 # start the Open5GS container
 cd /opt/srsRAN_Project/docker
-sudo docker compose up
+sudo docker compose up 5gc
 ```
 
 """
@@ -92,7 +92,7 @@ In another session:
 
 ```
 # start the gNodeB
-sudo /opt/srsRAN_Project/build/apps/gnb/gnb -c /etc/srsran/gnb.conf
+sudo /opt/srsRAN_Project/build/apps/gnb/gnb -c /etc/srsran/gnb.yml
 ```
 
 The AMF logs in the 5gc container should show a connection from the gNodeB via the N2 interface.
