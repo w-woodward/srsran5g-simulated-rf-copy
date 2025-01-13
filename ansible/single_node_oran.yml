@@ -1,0 +1,8 @@
+- name: Single-node srsRAN OSC RIC installation
+  hosts: all
+  become: true
+  roles:
+    - role: dustinmaas.nextg_utils.srs_oran_sc_ric
+      when: srsran_project_enable_du_e2
+    - role: dustinmaas.nextg_utils.srsran_project
+    - role: dustinmaas.nextg_utils.srsran_4g
