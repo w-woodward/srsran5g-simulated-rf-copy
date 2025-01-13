@@ -47,7 +47,7 @@ tourDescription = """
 
 ### srsRAN 5G with Open5GS and Simulated RF
 
-This profile instantiates a single-node experiment for running and end to end 5G network using srsRAN_Project 24.04 (gNodeB), srsRAN_4G (UE), and Open5GS (in container) with IQ samples passed via ZMQ between the gNodeB and the UE. It requires a single Dell d430 compute node.
+This profile instantiates a single-node experiment for running and end to end 5G network using srsRAN_Project 24.10 (gNodeB), srsRAN_4G 23.11 (UE), and Open5GS (in container) with IQ samples passed via ZMQ between the gNodeB and the UE. It requires a single Dell d430 compute node.
 
 Optionally, you can also deploy a containerized ORAN SC RIC and xApp on the same node to demonstrate a 5G RAN Intelligent Controller (RIC) and xApp interacting with the gNodeB.
 
