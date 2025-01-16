@@ -179,6 +179,7 @@ node.addService(pg.Execute(shell="sh", command=HEAD_CMD))
 node.addService(pg.Execute(shell="sh", command=GALAXY_INSTALL_CMD))
 node.addService(pg.Execute(shell="sh", command=GALAXY_INSTALL_REQS_CMD))
 node.addService(pg.Execute(shell="sh", command=TAIL_CMD))
+node.startVNC()
 
 tour = ig.Tour()
 tour.Description(ig.Tour.MARKDOWN, tourDescription)
